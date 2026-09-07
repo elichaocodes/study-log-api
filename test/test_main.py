@@ -307,3 +307,17 @@ def test_update_nonexistent_study_session_rejects_request():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Study session not found"
+
+def test_create_study_session_rejects_blank_subject():
+    response = client.post("/api/v1/study-sessions",
+                           json={
+                               "subject": "  ",
+                               "minutes": 45
+                           }
+                           )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "subject"]
+
+    response = client.get("/api/v1/study-sessions")
+    assert response.status_code == 200
+    assert response.json()["count"] == 0

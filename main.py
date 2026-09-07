@@ -1,7 +1,7 @@
 # ./.venv/bin/python -m uvicorn main:app --reload --port 8034
 
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from database import (
 initialize_database,
@@ -23,6 +23,16 @@ initialize_database()
 class StudySessionCreate(BaseModel):
     subject: str = Field(..., min_length=1, description="Subject of the study")
     minutes: int = Field(..., gt=0,  description="Minutes of the study")
+
+    @field_validator("subject")
+    @classmethod
+    def validate_subject(cls, value: str) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Subject cannot be blank")
+
+        return value
 
 class StudySessionResponse(BaseModel):
     session_id: int
@@ -58,11 +68,8 @@ class DeleteStudySessionResponse(BaseModel):
 
 @app.post("/api/v1/study-sessions", status_code=201, response_model=StudySessionResponse)
 def create_study_session(request: StudySessionCreate):
-    subject = request.subject.strip()
+    subject = request.subject
     minutes = request.minutes
-
-    if not subject :
-        raise HTTPException(status_code=400, detail="Subject cannot be blank")
 
     session_id = insert_study_session(subject, minutes)
     study_session = get_study_session_from_db(session_id)
