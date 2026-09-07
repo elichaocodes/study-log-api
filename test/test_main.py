@@ -321,3 +321,15 @@ def test_create_study_session_rejects_blank_subject():
     response = client.get("/api/v1/study-sessions")
     assert response.status_code == 200
     assert response.json()["count"] == 0
+
+def test_create_study_session_strips_subject():
+    response = client.post("/api/v1/study-sessions",
+                           json={
+                               "subject": "  Python  ",
+                               "minutes": 45
+                           }
+                           )
+    assert response.status_code == 201
+    assert response.json()["subject"] == "Python"
+
+
