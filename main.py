@@ -1,10 +1,9 @@
-# ./.venv/bin/python -m uvicorn study_log.main:app --reload --port 8034
-
+# ./.venv/bin/python -m uvicorn main:app --reload --port 8034
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from study_log.database import (
+from database import (
 initialize_database,
 insert_study_session,
 get_study_session as get_study_session_from_db,
@@ -13,6 +12,7 @@ list_study_sessions_by_subject as list_study_sessions_by_subject_from_db,
 list_study_sessions_by_min_minutes,
 list_study_sessions_by_subject_and_min_minutes,
 delete_study_session as delete_study_session_from_db,
+get_study_summary_by_subject as get_study_summary_by_subject_from_db,
 )
 
 app = FastAPI(title="Study Log API")
@@ -92,6 +92,15 @@ def read_study_session_summary():
         "average_minutes": average_minutes
     }
 
+@app.get("/api/v1/study-sessions/by-subject")
+def get_study_summary_by_subject():
+    summaries = get_study_summary_by_subject_from_db()
+
+    return {
+        "count": len(summaries),
+        "subjects": summaries
+    }
+
 @app.get("/api/v1/study-sessions/{session_id}", response_model=StudySessionResponse)
 def get_study_session_by_id(session_id: int):
     session = get_study_session_from_db(session_id)
@@ -112,3 +121,6 @@ def delete_study_session_by_id(session_id: int):
         "message": "Study session deleted successfully",
         "session_id": session_id
     }
+
+
+

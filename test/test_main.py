@@ -7,8 +7,8 @@ import pytest
 TEST_DATABASE_PATH = Path(__file__).with_name("test_study_session.db")
 os.environ["DATABASE_PATH"] = str(TEST_DATABASE_PATH)
 
-from study_log.main import app
-from study_log.database import initialize_database
+from main import app
+from database import initialize_database
 
 client = TestClient(app)
 
@@ -238,3 +238,37 @@ def test_delete_nonexistent_study_session():
     response = client.delete("/api/v1/study-sessions/999")
     assert response.status_code == 404
     assert response.json()["detail"] == "Study session not found"
+
+def test_get_study_summary_by_subject():
+    response1 = client.post("/api/v1/study-sessions",
+                            json={
+                                "subject": "Python",
+                                "minutes": 45
+                            }
+                            )
+    response2 = client.post("/api/v1/study-sessions",
+                            json={
+                                "subject": "English",
+                                "minutes": 30
+                            }
+                            )
+    response3 = client.post("/api/v1/study-sessions",
+                            json={
+                                "subject": "Python",
+                                "minutes": 60
+                            }
+                            )
+    assert response1.status_code == 201
+    assert response2.status_code == 201
+    assert response3.status_code == 201
+
+    response = client.get("/api/v1/study-sessions/by-subject")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 2
+    assert data["subjects"][0]["subject"] == "Python"
+    assert data["subjects"][0]["session_count"] == 2
+    assert data["subjects"][0]["total_minutes"] == 105
+    assert data["subjects"][1]["subject"] == "English"
+    assert data["subjects"][1]["session_count"] == 1
+    assert data["subjects"][1]["total_minutes"] == 30

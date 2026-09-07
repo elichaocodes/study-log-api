@@ -133,3 +133,22 @@ def delete_study_session(session_id: int):
 
     connection.commit()
     connection.close()
+
+def get_study_summary_by_subject():
+    connection = get_connection()
+    rows = connection.execute(
+        """
+        SELECT
+            subject,
+            COUNT(*) AS session_count,
+            SUM(minutes) AS total_minutes
+        FROM study_sessions
+        GROUP BY subject
+        ORDER BY total_minutes DESC
+        """
+    ).fetchall()
+
+    connection.close()
+
+    return [dict(row) for row in rows]
+

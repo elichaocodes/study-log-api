@@ -9,18 +9,28 @@
 - 查詢單一讀書紀錄
 - 依讀書科目篩選
 - 依最低讀書分鐘數篩選
+- 依讀書科目統計
 - 可同時使用兩個篩選條件
 - 刪除指定讀書紀錄
 - 使用 SQLite 保存資料，伺服器重新啟動後仍會保留
 - 使用 pytest 測試新增、查詢、篩選、刪除與驗證規則 
 - 查詢總讀書次數、總分鐘數與平均分鐘數
 
-## 啟動
+## 安裝
 
-在 `mini-api-practice` 根目錄執行：
+在專案根目錄執行：
 
 ```bash
-./.venv/bin/python -m uvicorn study_log.main:app --reload --port 8034
+python3 -m venv .venv
+./.venv/bin/python -m pip install -r requirements.txt
+```
+
+## 啟動
+
+在專案根目錄執行：
+
+```bash
+./.venv/bin/python -m uvicorn main:app --reload --port 8034
 ```
 
 開啟 API 文件：
@@ -31,15 +41,16 @@ http://127.0.0.1:8034/docs
 
 ## API 端點
 
-| 方法 | 路徑                                                   | 功能                                               |
-| --- |--------------------------------------------------------|----------------------------------------------------|
-| POST | `/api/v1/study-sessions`                               | 新增讀書紀錄                                       |
-| GET | `/api/v1/study-sessions`                               | 查詢讀書紀錄；可使用 `subject`、`min_minutes` 篩選 |
-| GET | `/api/v1/study-sessions?subject=Python`                | 依讀書科目篩選                                     |
-| GET | `/api/v1/study-sessions?min_minutes=30`                | 依最低分鐘數篩選                                   |
-| GET | `/api/v1/study-sessions?subject=Python&min_minutes=30` | 同時使用兩個篩選條件                               |
-| GET | `/api/v1/study-sessions/{session_id}`                  | 查詢單一讀書紀錄                                   |
-| GET | `/api/v1/study-sessions/summary`                       | 查詢讀書統計                                       |
+| 方法   | 路徑                                                   | 功能                                               |
+|--------|--------------------------------------------------------|----------------------------------------------------|
+| POST   | `/api/v1/study-sessions`                               | 新增讀書紀錄                                       |
+| GET    | `/api/v1/study-sessions`                               | 查詢讀書紀錄；可使用 `subject`、`min_minutes` 篩選 |
+| GET    | `/api/v1/study-sessions?subject=Python`                | 依讀書科目篩選                                     |
+| GET    | `/api/v1/study-sessions?min_minutes=30`                | 依最低分鐘數篩選                                   |
+| GET    | `/api/v1/study-sessions?subject=Python&min_minutes=30` | 同時使用兩個篩選條件                               |
+| GET    | `/api/v1/study-sessions/{session_id}`                  | 查詢單一讀書紀錄                                   |
+| GET    | `/api/v1/study-sessions/by-subject`                    | 依讀書科目統計                                     |
+| GET    | `/api/v1/study-sessions/summary`                       | 查詢讀書統計                                       |
 | DELETE | `/api/v1/study-sessions/{session_id}`                  | 刪除指定讀書紀錄                                   |
 
 ## 資料庫
@@ -51,5 +62,5 @@ http://127.0.0.1:8034/docs
 ## 測試
 
 ```bash
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -m pytest study_log/test/test_main.py -v
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./.venv/bin/python -m pytest test/test_main.py -v
 ```
