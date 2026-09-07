@@ -152,3 +152,15 @@ def get_study_summary_by_subject():
 
     return [dict(row) for row in rows]
 
+def update_study_session_minutes(session_id: int, minutes: int):
+    connection = get_connection()
+    connection.execute(
+        """
+        UPDATE study_sessions
+        SET minutes = ?
+        WHERE session_id = ?
+        """,
+        (minutes, session_id)
+    )
+    connection.commit()
+    connection.close()

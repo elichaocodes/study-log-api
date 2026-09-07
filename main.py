@@ -1,4 +1,5 @@
 # ./.venv/bin/python -m uvicorn main:app --reload --port 8034
+from urllib import request
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -13,6 +14,7 @@ list_study_sessions_by_min_minutes,
 list_study_sessions_by_subject_and_min_minutes,
 delete_study_session as delete_study_session_from_db,
 get_study_summary_by_subject as get_study_summary_by_subject_from_db,
+update_study_session_minutes as update_study_session_minutes_from_db
 )
 
 app = FastAPI(title="Study Log API")
@@ -37,6 +39,9 @@ class StudySessionSummaryResponse(BaseModel):
     session_count: int
     total_minutes: int
     average_minutes: float
+
+class StudySessionUpdate(BaseModel):
+    minutes: int = Field(..., gt=0, description="Study minutes")
 
 @app.post("/api/v1/study-sessions", status_code=201, response_model=StudySessionResponse)
 def create_study_session(request: StudySessionCreate):
@@ -121,6 +126,22 @@ def delete_study_session_by_id(session_id: int):
         "message": "Study session deleted successfully",
         "session_id": session_id
     }
+
+@app.patch("/api/v1/study-sessions/{session_id}/minutes", response_model=StudySessionResponse)
+def update_study_session_by_minutes(session_id: int, request: StudySessionUpdate):
+    session = get_study_session_from_db(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Study session not found")
+
+    update_study_session_minutes_from_db(session_id, request.minutes)
+
+    session = get_study_session_from_db(session_id)
+
+    return session
+
+
+
+
 
 
 

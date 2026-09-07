@@ -272,3 +272,38 @@ def test_get_study_summary_by_subject():
     assert data["subjects"][1]["subject"] == "English"
     assert data["subjects"][1]["session_count"] == 1
     assert data["subjects"][1]["total_minutes"] == 30
+
+def test_update_study_session_by_minute():
+    response = client.post("/api/v1/study-sessions",
+                           json={
+                               "subject": "Python",
+                               "minutes": 45
+                           }
+                           )
+    assert response.status_code == 201
+    create_data = response.json()
+    session_id = create_data["session_id"]
+
+    response_a = client.patch(f"/api/v1/study-sessions/{session_id}/minutes",
+                            json={
+                                "minutes": 60
+                            }
+                            )
+    assert response_a.status_code == 200
+    data = response_a.json()
+    assert data["minutes"] == 60
+
+    response_b = client.get(f"/api/v1/study-sessions/{session_id}")
+    assert response_b.status_code == 200
+    data = response_b.json()
+    assert data["minutes"] == 60
+
+def test_update_nonexistent_study_session_rejects_request():
+    response = client.patch("/api/v1/study-sessions/999/minutes",
+                            json={
+                                "minutes": 60
+                            }
+                            )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Study session not found"

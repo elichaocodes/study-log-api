@@ -15,6 +15,7 @@
 - 使用 SQLite 保存資料，伺服器重新啟動後仍會保留
 - 使用 pytest 測試新增、查詢、篩選、刪除與驗證規則 
 - 查詢總讀書次數、總分鐘數與平均分鐘數
+- 修改指定讀書紀錄的分鐘數
 
 ## 安裝
 
@@ -52,6 +53,7 @@ http://127.0.0.1:8034/docs
 | GET    | `/api/v1/study-sessions/by-subject`                    | 依讀書科目統計                                     |
 | GET    | `/api/v1/study-sessions/summary`                       | 查詢讀書統計                                       |
 | DELETE | `/api/v1/study-sessions/{session_id}`                  | 刪除指定讀書紀錄                                   |
+| PATCH | `/api/v1/study-sessions/{session_id}/minutes` | 修改讀書分鐘數 |
 
 ## 資料庫
 
